@@ -10,16 +10,18 @@ var async = require('async');
 var exec = require('child_process').exec;
 var fs = require('fs');
 var generator = require('commander');
+var path = require('path');
 
 
 /* Global android configuration */
 
 var ANDROID_TARGET = 'android-15';
+var ANDROID_MAIN_CLASS = 'AurynMainActivity';
 
 
 generator
   .version(auryn.version)
-  .option('-p, --project-path [path]', 'Project path [.]', checkProject, '.')
+  .option('-p, --project-path [path]', 'Project path [.]', '.')
   .option('-o, --output-path [path]', 'Generated android output path [./build/android]', './build/android')
   .parse(process.argv);
 
@@ -34,7 +36,7 @@ var steps = {};
 
 /* Get infos from project if exists */
 
-function checkProject(next) {
+steps.checkProject = function (next) {
   fs.readFile(generator.projectPath + '/package.json', 'utf8', function (err, raw) {
     if (err) return next({
       code: 1,
@@ -50,31 +52,48 @@ function checkProject(next) {
 
     next(null, project);
   });
-
 }
 
 /* Call android sub process to create ant project */
 
-function createAntProject(project, next) {
+steps.createAntProject = function (project, next) {
   var cmd = [
     'android create project',
     '--target', ANDROID_TARGET,
     '--name', project.name,
     '--path', generator.outputPath,
-    '--activity', 'AurynMainActivity',
+    '--activity', ANDROID_MAIN_CLASS,
     '--package', project.appid
   ].join(' ');
 
   exec(cmd, function (err) {
-    if (err) next({
+    if (err) return next({
       code: 2,
       message: 'Failed to generate android ant output'
     });
+
+    next(null, project);
   });
 }
 
+/* Overwrite main Java class */
 
-async.waterfall([checkProject, createAntProject], function (err) {
+steps.generateJavaClass = function (project, next) {
+  var srcBasePath = path.join(generator.outputPath, 'src');
+  var relPackagePath = path.join.apply(null, project.appid.split('.'));
+  var mainClassPath = path.join(srcBasePath, relPackagePath, ANDROID_MAIN_CLASS)
+
+  console.log(mainClassPath);
+};
+
+
+steps.all = [
+  steps.checkProject,
+  steps.createAntProject,
+  steps.generateJavaClass
+];
+
+async.waterfall(steps.all, function (err) {
   if (err) {
     console.error(err.message);
     process.exit(err.code)
