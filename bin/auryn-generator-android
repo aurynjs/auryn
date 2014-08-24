@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+
+
+/**
+ * Module dependencies.
+ */
+
+var auryn = require('../package.json');
+var async = require('async');
+var exec = require('child_process').exec;
+var fs = require('fs');
+var generator = require('commander');
+
+
+/* Global android configuration */
+
+var ANDROID_TARGET = 'android-15';
+
+
+generator
+  .version(auryn.version)
+  .option('-p, --project-path [path]', 'Project path [.]', checkProject, '.')
+  .option('-o, --output-path [path]', 'Generated android output path [./build/android]', './build/android')
+  .parse(process.argv);
+
+
+/*
+ * Generator steps
+ */
+
+
+var steps = {};
+
+
+/* Get infos from project if exists */
+
+function checkProject(next) {
+  fs.readFile(generator.projectPath + '/package.json', 'utf8', function (err, raw) {
+    if (err) return next({
+      code: 1,
+      message: 'Failed to read package.json from ' + generator.projectPath
+    });
+
+    var project = JSON.parse(raw);
+
+    if (!project.appid) return next({
+      code: 1,
+      message: 'No appid defined in package.json'
+    });
+
+    next(null, project);
+  });
+
+}
+
+/* Call android sub process to create ant project */
+
+function createAntProject(project, next) {
+  var cmd = [
+    'android create project',
+    '--target', ANDROID_TARGET,
+    '--name', project.name,
+    '--path', generator.outputPath,
+    '--activity', 'AurynMainActivity',
+    '--package', project.appid
+  ].join(' ');
+
+  exec(cmd, function (err) {
+    if (err) next({
+      code: 2,
+      message: 'Failed to generate android ant output'
+    });
+  });
+}
+
+
+async.waterfall([checkProject, createAntProject], function (err) {
+  if (err) {
+    console.error(err.message);
+    process.exit(err.code)
+  }
+});
