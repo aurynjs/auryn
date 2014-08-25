@@ -3,13 +3,89 @@ package {{appid}};
 import android.app.Activity;
 import android.os.Bundle;
 
-public class AurynMainActivity extends Activity
+import org.appcelerator.kroll.runtime.v8.V8Runtime;
+import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.KrollApplication;
+
+
+public class AurynMainActivity extends Activity implements KrollApplication
 {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+      V8Runtime runtime = new V8Runtime();
+      KrollRuntime.init(this, runtime);
+    }
+
+    @Override
+    public int getThreadStackSize() {
+      return 0;
+    }
+
+
+    @Override
+    public Activity getCurrentActivity() {
+      return this;
+    }
+
+
+    @Override
+    public void waitForCurrentActivity(CurrentActivityListener l) {
+
+    }
+
+
+    @Override
+    public TiTempFileHelper getTempFileHelper() {
+
+    }
+
+
+    @Override
+    public TiDeployData getDeployData() {
+
+    }
+
+
+    @Override
+    public boolean isFastDevMode() {
+
+    }
+
+
+    @Override
+    public String getAppGUID() {
+
+    }
+
+
+    @Override
+    public boolean isDebuggerEnabled() {
+
+    }
+
+
+    @Override
+    public void dispose() {
+
+    }
+
+
+    @Override
+    public String getDeployType() {
+
+    }
+
+
+    @Override
+    public String getDefaultUnit() {
+
+    }
+
+
+    @Override
+    public void cancelTimers() {
+
     }
 }

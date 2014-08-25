@@ -14,7 +14,9 @@ var auryn = require('../package.json');
 var async = require('async');
 var exec = require('child_process').exec;
 var fs = require('fs');
+var fse = require('fs-extra');
 var generator = require('commander');
+var osenv = require('osenv');
 var path = require('path');
 var source = require('../lib/source');
 
@@ -23,6 +25,7 @@ var source = require('../lib/source');
 
 var ANDROID_TARGET = 'android-15';
 var ANDROID_MAIN_CLASS = 'AurynMainActivity';
+var AURYN_HOME = path.join(osenv.home(), '.auryn');
 
 
 generator
@@ -94,14 +97,63 @@ steps.generateJavaClass = function (project, next) {
       message: 'Failed to generate android main java class',
       origin: err
     });
+
+    next(null, project);
   });
 };
+
+
+/* Copy jar libraries */
+
+steps.copyJARLibs = function (project, next) {
+  var libs = ['kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar'];
+
+  async.each(libs, function (libName, next) {
+    fse.copy(
+      path.join(AURYN_HOME, 'sdk', 'android', libName),
+      path.join(generator.outputPath, 'libs', libName),
+      next
+    );
+  }, function (err) {
+    if (err) return next({
+      message: 'Failed to copy libs',
+      origin: err
+    });
+
+    next(null, project);
+  });
+};
+
+
+/* Copy native libraries */
+
+steps.copyNativeDirs = function (project, next) {
+  var dirs = ['armeabi', 'armeabi-v7a', 'x86'];
+
+  async.each(dirs, function (dirName, next) {
+    fse.copy(
+      path.join(AURYN_HOME, 'sdk', 'android', 'native', 'libs', dirName),
+      path.join(generator.outputPath, 'libs', dirName),
+      next
+    );
+  }, function (err) {
+    if (err) return next({
+      message: 'Failed to copy native libs',
+      origin: err
+    });
+
+    next(null, project);
+  });
+};
+
 
 
 steps.all = [
   steps.checkProject,
   steps.createAntProject,
-  steps.generateJavaClass
+  steps.generateJavaClass,
+  steps.copyJARLibs,
+  steps.copyNativeDirs
 ];
 
 async.waterfall(steps.all, function (err) {

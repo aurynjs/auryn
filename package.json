@@ -19,6 +19,8 @@
   "dependencies": {
     "async": "^0.9.0",
     "commander": "^2.3.0",
-    "handlebars": "~2.0.0-alpha.4"
+    "fs-extra": "^0.11.0",
+    "handlebars": "~2.0.0-alpha.4",
+    "osenv": "^0.1.0"
   }
 }
