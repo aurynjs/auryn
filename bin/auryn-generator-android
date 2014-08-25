@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/*
+ * Generate ANT android project
+ * After this command, it's ready to build with 'ant debug' or 'ant release'
+ */
+
 
 /**
  * Module dependencies.
@@ -11,6 +16,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var generator = require('commander');
 var path = require('path');
+var source = require('../lib/source');
 
 
 /* Global android configuration */
@@ -21,8 +27,8 @@ var ANDROID_MAIN_CLASS = 'AurynMainActivity';
 
 generator
   .version(auryn.version)
-  .option('-p, --project-path [path]', 'Project path [.]', '.')
-  .option('-o, --output-path [path]', 'Generated android output path [./build/android]', './build/android')
+  .option('-p, --project-path [path]', 'Project path', path.resolve, path.resolve('.'))
+  .option('-o, --output-path [path]', 'Generated android output path', path.resolve, path.resolve('./build/android'))
   .parse(process.argv);
 
 
@@ -39,15 +45,15 @@ var steps = {};
 steps.checkProject = function (next) {
   fs.readFile(generator.projectPath + '/package.json', 'utf8', function (err, raw) {
     if (err) return next({
-      code: 1,
-      message: 'Failed to read package.json from ' + generator.projectPath
+      message: 'Failed to read package.json from ' + generator.projectPath,
+      origin: err
     });
 
     var project = JSON.parse(raw);
 
     if (!project.appid) return next({
-      code: 1,
-      message: 'No appid defined in package.json'
+      message: 'No appid defined in package.json',
+      origin: err
     });
 
     next(null, project);
@@ -60,7 +66,7 @@ steps.createAntProject = function (project, next) {
   var cmd = [
     'android create project',
     '--target', ANDROID_TARGET,
-    '--name', project.name,
+    '--name', project.name.replace(' ', ''),
     '--path', generator.outputPath,
     '--activity', ANDROID_MAIN_CLASS,
     '--package', project.appid
@@ -68,8 +74,8 @@ steps.createAntProject = function (project, next) {
 
   exec(cmd, function (err) {
     if (err) return next({
-      code: 2,
-      message: 'Failed to generate android ant output'
+      message: 'Failed to generate android ant output',
+      origin: err
     });
 
     next(null, project);
@@ -81,9 +87,14 @@ steps.createAntProject = function (project, next) {
 steps.generateJavaClass = function (project, next) {
   var srcBasePath = path.join(generator.outputPath, 'src');
   var relPackagePath = path.join.apply(null, project.appid.split('.'));
-  var mainClassPath = path.join(srcBasePath, relPackagePath, ANDROID_MAIN_CLASS)
+  var mainClassPath = path.join(srcBasePath, relPackagePath, ANDROID_MAIN_CLASS + '.java')
 
-  console.log(mainClassPath);
+  source.generate('android-main', project, mainClassPath, function (err) {
+    if (err) return next({
+      message: 'Failed to generate android main java class',
+      origin: err
+    });
+  });
 };
 
 
@@ -94,8 +105,13 @@ steps.all = [
 ];
 
 async.waterfall(steps.all, function (err) {
+  var errLogFile = path.resolve('./auryn.log');
+
   if (err) {
-    console.error(err.message);
-    process.exit(err.code)
+    fs.writeFile(errLogFile, err.origin, function () {
+      console.error(err.message);
+      console.log('See', errLogFile, 'for more details')
+      process.exit(1)
+    });
   }
 });
