@@ -6,6 +6,9 @@ import android.os.Bundle;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.KrollApplication;
+import org.appcelerator.kroll.common.CurrentActivityListener;
+import org.appcelerator.kroll.common.TiDeployData;
+import org.appcelerator.kroll.util.TiTempFileHelper;
 
 
 public class AurynMainActivity extends Activity implements KrollApplication
@@ -38,31 +41,31 @@ public class AurynMainActivity extends Activity implements KrollApplication
 
     @Override
     public TiTempFileHelper getTempFileHelper() {
-
+        return null;
     }
 
 
     @Override
     public TiDeployData getDeployData() {
-
+        return null;
     }
 
 
     @Override
     public boolean isFastDevMode() {
-
+        return false;
     }
 
 
     @Override
     public String getAppGUID() {
-
+        return "";
     }
 
 
     @Override
     public boolean isDebuggerEnabled() {
-
+        return false;
     }
 
 
@@ -74,13 +77,13 @@ public class AurynMainActivity extends Activity implements KrollApplication
 
     @Override
     public String getDeployType() {
-
+        return "";
     }
 
 
     @Override
     public String getDefaultUnit() {
-
+        return "";
     }
 
 
