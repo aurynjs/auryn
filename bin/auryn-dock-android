@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+
+/*
+ * Generate ANT android project
+ * After this command, it's ready to build with 'ant debug' or 'ant release'
+ */
+
+
+/**
+ * Module dependencies.
+ */
+
+var auryn = require('../package.json');
+var async = require('async');
+var exec = require('child_process').exec;
+var fs = require('fs');
+var fse = require('fs-extra');
+var program = require('commander');
+var osenv = require('osenv');
+var path = require('path');
+var source = require('../lib/source');
+
+
+/* Global android configuration */
+
+var AURYN_HOME = path.join(osenv.home(), '.auryn');
+
+
+program
+  .version(auryn.version)
+  .option('-p, --project-path [path]', 'Project path', path.resolve, path.resolve('.'))
+  .option('-d, --dock-path [path]', 'Generated android output path', path.resolve, path.resolve('./dock/android'))
+  .option('-a, --android-target [target]', 'Android target name', 'android-15')
+  .parse(process.argv);
+
+
+/*
+ * Dock steps
+ */
+
+
+var steps = {};
+
+
+/* Get infos from project if exists */
+
+steps.checkProject = function (next) {
+  fs.readFile(program.projectPath + '/package.json', 'utf8', function (err, raw) {
+    if (err) return next({
+      message: 'Failed to read package.json from ' + program.projectPath,
+      origin: err
+    });
+
+    var project = JSON.parse(raw);
+
+    if (!project.appid) return next({
+      message: 'No appid defined in package.json',
+      origin: err
+    });
+
+    next(null, project);
+  });
+}
+
+/* Call android sub process to create ant project */
+
+steps.createAntProject = function (project, next) {
+  var cmd = [
+    'android create project',
+    '--target', program.androidTarget,
+    '--name', project.name.replace(' ', ''),
+    '--path', program.dockPath,
+    '--activity', 'NoName',
+    '--package', project.appid
+  ].join(' ');
+
+  exec(cmd, function (err) {
+    if (err) return next({
+      message: 'Failed to generate android ant output',
+      origin: err
+    });
+
+    next(null, project);
+  });
+};
+
+
+steps.all = [
+  steps.checkProject,
+  steps.createAntProject
+];
+
+async.waterfall(steps.all, function (err) {
+  var errLogFile = path.resolve('./auryn.log');
+
+  if (err) {
+    fs.writeFile(errLogFile, err.origin, function () {
+      console.error(err.message);
+      console.log('See', errLogFile, 'for more details')
+      process.exit(1)
+    });
+  }
+});
