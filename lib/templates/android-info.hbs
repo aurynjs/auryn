@@ -1,0 +1,65 @@
+package {{appid}};
+
+import org.appcelerator.titanium.ITiAppInfo;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiProperties;
+
+public final class AurynInfo implements ITiAppInfo
+{
+
+  public AurynInfo(TiApplication app) {
+  }
+
+  public String getDeployType() {
+    return "test";
+  }
+
+  public String getId() {
+    return "{{appid}}";
+  }
+
+  public String getName() {
+    return "{{name}}";
+  }
+
+  public String getVersion() {
+    return "{{version}}";
+  }
+
+  public String getPublisher() {
+    return "{{author}}";
+  }
+
+  public String getUrl() {
+    return "{{homepage}}";
+  }
+
+  public String getCopyright() {
+    return "{{copyright}}";
+  }
+
+  public String getDescription() {
+    return "{{description}}";
+  }
+
+  public String getIcon() {
+    return "appicon.png";
+  }
+
+  public boolean isAnalyticsEnabled() {
+    return false;
+  }
+
+  public String getGUID() {
+    // NOPE
+    return "";
+  }
+
+  public boolean isFullscreen() {
+    return true;
+  }
+
+  public boolean isNavBarHidden() {
+    return true;
+  }
+}

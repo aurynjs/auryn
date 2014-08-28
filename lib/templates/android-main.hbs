@@ -1,94 +1,40 @@
 package {{appid}};
 
-import android.app.Activity;
-import android.os.Bundle;
 
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
+
 import org.appcelerator.kroll.KrollRuntime;
-import org.appcelerator.kroll.KrollApplication;
-import org.appcelerator.kroll.common.CurrentActivityListener;
-import org.appcelerator.kroll.common.TiDeployData;
-import org.appcelerator.kroll.util.TiTempFileHelper;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.TiStylesheet;
 
 
-public class AurynMainActivity extends Activity implements KrollApplication
+public final class AurynMainApplication extends TiApplication
 {
-    /** Called when the activity is first created. */
+    private class AurynStylesheet extends TiStylesheet {
+        AurynStylesheet() {
+            super();
+        }
+    }
+
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onCreate()
     {
-      V8Runtime runtime = new V8Runtime();
-      KrollRuntime.init(this, runtime);
+        super.onCreate();
+
+        appInfo = new AurynInfo(this);
+        postAppInfo();
+
+        V8Runtime runtime = new V8Runtime();
+        KrollRuntime.init(this, runtime);
+
+        stylesheet = new AurynStylesheet();
+        postOnCreate();
     }
 
     @Override
-    public int getThreadStackSize() {
-      return 0;
-    }
-
-
-    @Override
-    public Activity getCurrentActivity() {
-      return this;
-    }
-
-
-    @Override
-    public void waitForCurrentActivity(CurrentActivityListener l) {
-
-    }
-
-
-    @Override
-    public TiTempFileHelper getTempFileHelper() {
-        return null;
-    }
-
-
-    @Override
-    public TiDeployData getDeployData() {
-        return null;
-    }
-
-
-    @Override
-    public boolean isFastDevMode() {
-        return false;
-    }
-
-
-    @Override
-    public String getAppGUID() {
-        return "";
-    }
-
-
-    @Override
-    public boolean isDebuggerEnabled() {
-        return false;
-    }
-
-
-    @Override
-    public void dispose() {
-
-    }
-
-
-    @Override
-    public String getDeployType() {
-        return "";
-    }
-
-
-    @Override
-    public String getDefaultUnit() {
-        return "";
-    }
-
-
-    @Override
-    public void cancelTimers() {
-
+    public void verifyCustomModules(TiRootActivity rootActivity) 
+    {
+        // NOPE
     }
 }

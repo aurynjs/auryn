@@ -90,11 +90,11 @@ steps.createAntProject = function (project, next) {
 steps.generateJavaClass = function (project, next) {
   var srcBasePath = path.join(generator.outputPath, 'src');
   var relPackagePath = path.join.apply(null, project.appid.split('.'));
-  var mainClassPath = path.join(srcBasePath, relPackagePath, ANDROID_MAIN_CLASS + '.java')
+  var generatorCtx = {genDir: path.join(srcBasePath, relPackagePath)};
 
-  source.generate('android-main', project, mainClassPath, function (err) {
+  source.generate('android', project, generatorCtx, function (err) {
     if (err) return next({
-      message: 'Failed to generate android main java class',
+      message: 'Failed to generate android java class',
       origin: err
     });
 
@@ -106,7 +106,19 @@ steps.generateJavaClass = function (project, next) {
 /* Copy jar libraries */
 
 steps.copyJARLibs = function (project, next) {
-  var libs = ['kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar'];
+  var libs = [
+    'android-support-v4.jar',
+    'freemarker.jar',
+    'jaxen-1.1.1.jar',
+    'json_simple-1.1.jar',
+    'kroll-apt.jar',
+    'kroll-common.jar',
+    'kroll-v8.jar',
+    'nineoldandroids-appc-2.4.0.jar',
+    'thirdparty.jar',
+    'ti-commons-codec-1.3.jar',
+    'titanium.jar'
+  ];
 
   async.each(libs, function (libName, next) {
     fse.copy(
