@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+/*
+ * Dumps the first Makefile of an Auryn project
+ */
+
+
+/**
+ * Module dependencies.
+ */
+
+var _ = require('underscore');
+var async = require('async');
+var auryn = require('../package.json');
+var fs = require('fs');
+var handlebars = require('handlebars');
+var path = require('path');
+var program = require('commander');
+
+
+program
+  .version(auryn.version)
+  .option('-p, --project-path [path]', 'Choose another path than current', '.')
+  .parse(process.argv);
+
+
+var steps = {};
+
+steps.readTemplate = function (next) {
+  fs.readFile(path.join(
+    __dirname,
+    '../lib/templates/makefile.hbs'
+  ), 'utf8', next);
+};
+
+steps.writeMakefile = function (raw, next) {
+  var processor = handlebars.compile(raw);
+
+  fs.writeFile(path.join(
+    program.projectPath,
+    'Makefile'
+  ), processor({aurynClientPath: __dirname}));
+};
+
+async.waterfall(_.values(steps), function (err) {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+});
