@@ -36,6 +36,10 @@ project_dockdir := $(${auryn_cli} config get project.dockdir)
 project_name := $(${auryn_cli} config get project.name)
 
 
+all: 
+	# Nothing to do by default
+
+
 ${project_dockdir}/android:
 	@${android_bin_android} create project \
 		--target ${android_target} \
