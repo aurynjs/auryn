@@ -36,6 +36,17 @@ project_name := $(shell ${auryn_cli} config get project.name -p ${project_path})
 android_bin_android := $(shell ${auryn_cli} config get android.bin.android -p ${project_path})
 android_target := $(shell ${auryn_cli} config get android.target -p ${project_path})
 
+ant_bin := $(shell ${auryn_cli} config get ant.bin -p ${project_path})
+
+
+distclean:
+	@rm -rf ${project_dockdir}
+
+android-debug: ${project_dockdir}/android
+	@${ant_bin} -q -f ${project_dockdir}/android/build.xml debug
+
+android-release: ${project_dockdir}/android
+	@${ant_bin} -q -f ${project_dockdir}/android/build.xml release
 
 ${project_dockdir}/android:
 	@${android_bin_android} -s create project \
@@ -45,4 +56,5 @@ ${project_dockdir}/android:
 		--activity TempActivityName \
 		--package ${project_appid}
 	@${auryn_cli} autoconfigure \
+		-p ${project_path} \
 		--android-manifest ${project_dockdir}/android/AndroidManifest.xml

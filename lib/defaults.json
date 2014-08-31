@@ -1,0 +1,18 @@
+{
+  "android": {
+    "manifest": {
+      "rules": {
+        "application": {
+          "attrs": {
+            "android:name": "AurynMainApplication"
+          }
+        },
+        "application > activity": {
+          "attrs": {
+            "android:name": ".AurynMainActivity"
+          }
+        }
+      }
+    }
+  }
+}

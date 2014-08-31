@@ -41,5 +41,5 @@ config.get(varName, getConf, function (err, value) {
     process.exit(1);
   }
 
-  process.stdout.write(value);
+  process.stdout.write(_.isString(value) ? value : '');
 });
