@@ -23,4 +23,16 @@ describe('config', function () {
     });
   });
 
+  it('should get value from config file', function (done) {
+    fs.writeFileSync(osenv.home() + '/.aurynrc', JSON.stringify({foo: {bar: 42}}));
+
+    config.get('foo.bar', null, function (err, value) {
+      if (err) throw err;
+
+      assert.equal(value, 42);
+
+      done();
+    });
+  });
+
 });

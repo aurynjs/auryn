@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /*
- * Set up one auryn configuration variable
+ * Get one auryn configuration variable
  */
 
 
@@ -21,23 +21,24 @@ var program = require('commander');
 
 program
   .version(auryn.version)
-  .usage('<variable> <value>')
+  .usage('<variable>')
   .option('-p, --project-path [path]', 'Choose another path than current', '.')
   .parse(process.argv);
 
 
-if (program.args.length !== 2) {
+if (program.args.length !== 1) {
   program.outputHelp();
   process.exit(1);
 }
 
 var varName = String(program.args[0]);
-var varValue = String(program.args[1]);
+var getConf = {projectConfigPath: path.join(program.projectPath, 'package.json')}
 
-
-config.set(varName, varValue, function (err) {
+config.get(varName, getConf, function (err, value) {
   if (err) {
     console.error(err.toString());
     process.exit(1);
   }
+
+  console.log(value);
 });

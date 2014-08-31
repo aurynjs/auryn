@@ -9,7 +9,7 @@
  * Module dependencies.
  */
 
-var _ = require('underscore');
+var _ = require('lodash');
 var async = require('async');
 var auryn = require('../package.json');
 var fs = require('fs');
