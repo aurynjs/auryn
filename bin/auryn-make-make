@@ -39,7 +39,7 @@ steps.writeMakefile = function (raw, next) {
   fs.writeFile(path.join(
     program.projectPath,
     'Makefile'
-  ), processor({aurynClientPath: __dirname}));
+  ), processor({aurynClientPath: path.join(__dirname, 'auryn')}));
 };
 
 async.waterfall(_.values(steps), function (err) {

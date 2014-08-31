@@ -28,16 +28,23 @@
 
 auryn_cli := {{aurynClientPath}}
 
-android_bin_android := $(${auryn_cli} config get android.bin.android)
-android_target := $(${auryn_cli} config get android.target)
+project_path := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-project_appid := $(${auryn_cli} config get project.appid)
-project_dockdir := $(${auryn_cli} config get project.dockdir)
-project_name := $(${auryn_cli} config get project.name)
+android_bin_android := $(shell ${auryn_cli} config get android.bin.android -p ${project_path})
+android_target := $(shell ${auryn_cli} config get android.target -p ${project_path})
+
+project_appid := $(shell ${auryn_cli} config get project.appid -p ${project_path})
+project_dockdir := $(shell ${auryn_cli} config get -t relpath project.dockdir -p ${project_path})
+project_name := $(shell ${auryn_cli} config get project.name -p ${project_path})
 
 
-all: 
-	# Nothing to do by default
+all:
+	@echo "project_path = ${project_path}" 
+	@echo "android_bin_android = ${android_bin_android}" 
+	@echo "android_target = ${android_target}" 
+	@echo "project_appid = ${project_appid}" 
+	@echo "project_dockdir = ${project_dockdir}" 
+	@echo "project_name = ${project_name}" 
 
 
 ${project_dockdir}/android:

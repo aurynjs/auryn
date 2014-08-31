@@ -23,6 +23,7 @@ program
   .version(auryn.version)
   .usage('<variable>')
   .option('-p, --project-path [path]', 'Choose another path than current', '.')
+  .option('-t, --type [type]', 'Cast variable with type')
   .parse(process.argv);
 
 
@@ -32,7 +33,7 @@ if (program.args.length !== 1) {
 }
 
 var varName = String(program.args[0]);
-var getConf = {projectConfigPath: path.join(program.projectPath, 'package.json')}
+var getConf = {projectPath: program.projectPath, parser: program.type};
 
 config.get(varName, getConf, function (err, value) {
   if (err) {
@@ -40,5 +41,5 @@ config.get(varName, getConf, function (err, value) {
     process.exit(1);
   }
 
-  console.log(value);
+  process.stdout.write(value);
 });
