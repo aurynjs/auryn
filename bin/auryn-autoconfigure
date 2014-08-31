@@ -10,8 +10,10 @@
  */
 
 var _ = require('lodash');
+var async = require('async');
 var auryn = require('../package.json');
-var xmleditor = require('../lib/xmleditor');
+var cheerio = require('cheerio');
+var fs = require('fs');
 var program = require('commander');
 
 
@@ -20,10 +22,29 @@ program
   .option('-m, --android-manifest [file]', 'Autoconfigure an Android manifest')
   .parse(process.argv);
 
+var steps = {};
+var manifestSteps = {};
+
+manifestSteps.readConfFile = function (next) {
+  fs.readFile(program.androidManifest, 'utf8', next);
+};
+
+manifestSteps.editXML = function (raw, next) {
+  var $ = cheerio.load(raw);
+
+  $('application').attr('android:name', 'AurynMainApplication');
+  $('application > activity').attr('android:name', '.AurynMainActivity');
+
+  fs.writeFile(program.androidManifest, $.xml());
+};
 
 if (program.androidManifest) {
-  xmleditor
-    .from(program.androidManifest)
-    .to(program.androidManifest)
-    .start();
+  steps = manifestSteps;
 }
+
+async.waterfall(_.values(steps), function (err) {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+});

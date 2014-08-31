@@ -38,7 +38,7 @@ android_target := $(shell ${auryn_cli} config get android.target -p ${project_pa
 
 
 ${project_dockdir}/android:
-	@${android_bin_android} create project \
+	@${android_bin_android} -s create project \
 		--target ${android_target} \
 		--name ${project_name} \
 		--path ${project_dockdir}/android \
