@@ -40,5 +40,7 @@ var sourcesDir = path.join(__dirname, '../lib/templates', program.args[0]);
 fs.readdir(sourcesDir, function (err, sources) {
   if (err) return console.error(err.toString());
   
-  process.stdout.write(sources.join(' '));
+  process.stdout.write(sources.map(function (fileName) {
+    return path.join('src', fileName.replace('.hbs', ''));
+  }).join(' '));
 });
