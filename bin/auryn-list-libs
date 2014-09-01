@@ -56,7 +56,7 @@ steps.listTemplateDir = function (ctx, next) {
           return !!fileName.match(/.*\.jar$/);
         })
         .map(function (fileName) {
-          return path.join(libsPath, fileName);
+          return path.join('libs', fileName);
         })
         .value()
       ).join(' ')

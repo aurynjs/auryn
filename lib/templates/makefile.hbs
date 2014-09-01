@@ -26,22 +26,39 @@
 # issues : https://github.com/aurynjs/auryn/issues
 #
 
+# This generated line will work for you
+# If you're about to share this project,
+# You should change it to :
+#
+# auryn_cli := $(shell which auryn)
+#
+# ... after making sure auryn is in your path
+
 auryn_cli := {{aurynClientPath}}
+
+auryn_engine_path := $(shell ${auryn_cli} config get auryn.engine.path -p ${project_path})
 
 project_appid := $(shell ${auryn_cli} config get project.appid -p ${project_path})
 project_dockdir := $(shell ${auryn_cli} config get -t relpath project.dockdir -p ${project_path})
 project_name := $(shell ${auryn_cli} config get -t oneword project.name -p ${project_path})
 project_path := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-android_bin_android := $(shell ${auryn_cli} config get android.bin.android -p ${project_path})
+
+android_rel_libs := $(shell ${auryn_cli} list libs android -p ${project_path})
 android_rel_sources := $(shell ${auryn_cli} list sources android -p ${project_path})
+
+android_bin_android := $(shell ${auryn_cli} config get android.bin.android -p ${project_path})
+android_libs = $(shell for i in ${android_rel_libs}; do echo ${project_dockdir}/android/$$i; done)
 android_sources := $(shell for i in ${android_rel_sources}; do echo ${project_dockdir}/android/$$i; done)
 android_target := $(shell ${auryn_cli} config get android.target -p ${project_path})
+
 
 ant_bin := $(shell ${auryn_cli} config get ant.bin -p ${project_path})
 
 java_home := $(shell ${auryn_cli} config get java.home -p ${project_path})
 
+all:
+	@echo ${android_rel_libs}
 
 distclean:
 	@rm -rf ${project_dockdir}
@@ -52,10 +69,15 @@ android-debug: android-dock
 android-release: android-dock
 	@JAVA_HOME=${java_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml release
 
-android-dock: ${project_dockdir}/android ${android_sources}
+android-dock: ${project_dockdir}/android ${android_sources} ${android_libs}
 
 ${project_dockdir}/android/src/%.java:
+	@mkdir -p $(dir $@)
 	@${auryn_cli} render android/$(notdir $@).hbs $@ -p ${project_path}
+
+${project_dockdir}/android/libs/%.jar:
+	@mkdir -p $(dir $@)
+	@cp ${auryn_engine_path}/android/$(notdir $@) $@
 
 ${project_dockdir}/android:
 	@${android_bin_android} -s create project \
@@ -67,4 +89,4 @@ ${project_dockdir}/android:
 	@${auryn_cli} autoconfigure \
 		-p ${project_path} \
 		--android-manifest ${project_dockdir}/android/AndroidManifest.xml
-	@find ${project_dockdir}/android/src -name "*.java" -exec rm {} ';'  
+	@find ${project_dockdir}/android/src -name "*.java" -exec rm {} ';'

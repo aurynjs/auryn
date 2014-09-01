@@ -16,4 +16,5 @@ var program = require('commander');
 program
   .version(auryn.version)
   .command('sources', 'list sources to generate')
+  .command('libs', 'list libraries to generate')
   .parse(process.argv);
