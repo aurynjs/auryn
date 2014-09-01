@@ -1,0 +1,73 @@
+#!/usr/bin/env node
+
+/*
+ * List env items (libs / sources)
+ */
+
+
+/**
+ * Module dependencies.
+ */
+
+var auryn = require('../package.json');
+
+var program = require('commander');
+
+var _ = require('lodash');
+var async = require('async');
+var auryn = require('../package.json');
+var config = require('../lib/config');
+var fs = require('fs');
+var path = require('path');
+var program = require('commander');
+
+
+program
+  .version(auryn.version)
+  .usage('<operating system>\n\toperating system = android, ios')
+  .option('-p, --project-path [path]', 'Choose another path than current', '.')
+  .parse(process.argv);
+
+if (program.args.length !== 1) {
+  program.outputHelp();
+  process.exit(1);
+}
+
+if (! _.contains(['android', 'ios'], program.args[0])) {
+  console.error('Error: System', program.args[0], 'unknown.')
+  process.exit(1);
+}
+
+var steps = {};
+
+steps.readConfig = function (next) {
+  config.resolve({projectPath: program.projectPath}, next);
+};
+
+steps.listTemplateDir = function (ctx, next) {
+  var libsPath = path.join(ctx.auryn.engine.path, program.args[0]);
+
+  fs.readdir(libsPath, function (err, files) {
+    if (err) next(err);
+    
+    process.stdout.write(
+      (_.chain(files)
+        .filter(function (fileName) {
+          return !!fileName.match(/.*\.jar$/);
+        })
+        .map(function (fileName) {
+          return path.join(libsPath, fileName);
+        })
+        .value()
+      ).join(' ')
+    );
+  });
+};
+
+
+async.waterfall(_.values(steps), function (err) {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+});
