@@ -28,25 +28,28 @@
 
 auryn_cli := {{aurynClientPath}}
 
-project_path := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-project_appid := $(shell ${auryn_cli} config get project.appid -p ${project_path})
-project_dockdir := $(shell ${auryn_cli} config get -t relpath project.dockdir -p ${project_path})
-project_name := $(shell ${auryn_cli} config get project.name -p ${project_path})
 
 android_bin_android := $(shell ${auryn_cli} config get android.bin.android -p ${project_path})
 android_target := $(shell ${auryn_cli} config get android.target -p ${project_path})
 
 ant_bin := $(shell ${auryn_cli} config get ant.bin -p ${project_path})
 
+java_home := $(shell ${auryn_cli} config get java.home -p ${project_path})
+
+project_path := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+project_appid := $(shell ${auryn_cli} config get project.appid -p ${project_path})
+project_dockdir := $(shell ${auryn_cli} config get -t relpath project.dockdir -p ${project_path})
+project_name := $(shell ${auryn_cli} config get -t oneword project.name -p ${project_path})
+
 
 distclean:
 	@rm -rf ${project_dockdir}
 
 android-debug: ${project_dockdir}/android
-	@${ant_bin} -q -f ${project_dockdir}/android/build.xml debug
+	@JAVA_HOME=${java_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml debug
 
 android-release: ${project_dockdir}/android
-	@${ant_bin} -q -f ${project_dockdir}/android/build.xml release
+	@JAVA_HOME=${java_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml release
 
 ${project_dockdir}/android:
 	@${android_bin_android} -s create project \
