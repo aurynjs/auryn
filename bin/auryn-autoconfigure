@@ -39,7 +39,9 @@ manifestSteps.readManifest = function (conf, next) {
 };
 
 manifestSteps.editXML = function (conf, raw, next) {
-  var $ = cheerio.load(raw);
+  var $ = cheerio.load(raw, {
+    lowerCaseAttributeNames: false
+  });
 
   _.each(conf.rules, function (rule, selector) {
     var $el = $(selector);
