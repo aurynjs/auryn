@@ -19,4 +19,5 @@ program
   .command('config', 'get / set auryn configuration variables')
   .command('list', 'list env items (libs / sources)')
   .command('make', 'create / update project Makefile')
+  .command('render', 'render a template with project and settings context')
   .parse(process.argv);

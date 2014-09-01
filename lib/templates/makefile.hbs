@@ -55,7 +55,7 @@ android-release: android-dock
 android-dock: ${project_dockdir}/android ${android_sources}
 
 ${project_dockdir}/android/src/%.java:
-	@echo "will render source $(notdir $@).hbs into $@"
+	@${auryn_cli} render android/$(notdir $@).hbs $@ -p ${project_path}
 
 ${project_dockdir}/android:
 	@${android_bin_android} -s create project \
@@ -67,3 +67,4 @@ ${project_dockdir}/android:
 	@${auryn_cli} autoconfigure \
 		-p ${project_path} \
 		--android-manifest ${project_dockdir}/android/AndroidManifest.xml
+	@find ${project_dockdir}/android/src -name "*.java" -exec rm {} ';'  
