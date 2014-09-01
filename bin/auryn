@@ -17,5 +17,6 @@ program
   .version(auryn.version)
   .command('autoconfigure', 'set auryn parameters in dock config files (xml or plist)')
   .command('config', 'get / set auryn configuration variables')
+  .command('list', 'list env items (libs / sources)')
   .command('make', 'create / update project Makefile')
   .parse(process.argv);
