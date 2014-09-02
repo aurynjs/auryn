@@ -44,22 +44,42 @@ steps.readConfig = function (next) {
   config.resolve({projectPath: program.projectPath}, next);
 };
 
-steps.listTemplateDir = function (ctx, next) {
+steps.listLibrariesDir = function (ctx, next) {
   var libsPath = path.join(ctx.auryn.engine.path, program.args[0]);
 
   fs.readdir(libsPath, function (err, files) {
     if (err) next(err);
     
-    process.stdout.write(
-      (_.chain(files)
-        .filter(function (fileName) {
-          return !!fileName.match(/.*\.jar$/);
-        })
-        .map(function (fileName) {
-          return path.join('libs', fileName);
-        })
-        .value()
-      ).join(' ')
+    next(null, ctx, _.chain(files)
+      .filter(function (fileName) {
+        return !!fileName.match(/.*\.jar$/);
+      })
+      .map(function (fileName) {
+        return path.join('libs', fileName);
+      })
+      .value()
+    );
+  });
+};
+
+steps.listNativeLibrariesDir = function (ctx, libs, next) {
+  var nativeLibsPath = path.join(
+    ctx.auryn.engine.path,
+    program.args[0],
+    'native',
+    'libs'
+  );
+
+  fs.readdir(nativeLibsPath, function (err, files) {
+    if (err) next(err);
+    
+    process.stdout.write(_.chain(files)
+      .map(function (fileName) {
+        return path.join('lib', fileName);
+      })
+      .value()
+      .concat(libs)
+      .join(' ')
     );
   });
 };

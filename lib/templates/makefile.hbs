@@ -79,6 +79,10 @@ ${project_dockdir}/android/libs/%.jar:
 	@mkdir -p $(dir $@)
 	@cp ${auryn_engine_path}/android/$(notdir $@) $@
 
+${project_dockdir}/android/lib/%:
+	@mkdir -p $(dir $@)
+	@cp -r ${auryn_engine_path}/android/native/libs/$(notdir $@) $@
+
 ${project_dockdir}/android:
 	@${android_bin_android} -s create project \
 		--target ${android_target} \
