@@ -75,7 +75,7 @@ droid_native_path := $(call conf,auryn.engine.android.native.path)
 droid_native_dirs := $(shell ls ${droid_native_path}/)
 droid_native_names := $(foreach l,${droid_native_dirs},$(notdir $(l)))
 
-droid_dock_native := $(foreach l,${droid_native_names},${project_dockdir}/android/lib/$(l))
+droid_dock_native := $(foreach l,${droid_native_names},${project_dockdir}/android/libs/$(l))
 droid_dock_libs := ${droid_dock_jar} ${droid_dock_native}
 droid_dock_manifest := ${project_dockdir}/android/AndroidManifest.xml
 
@@ -111,7 +111,7 @@ ${project_dockdir}/android/libs/%.jar:
 	@mkdir -p $(dir $@)
 	@cp ${auryn_engine_path}/android/$(notdir $@) $@
 
-${project_dockdir}/android/lib/%:
+${project_dockdir}/android/libs/%:
 	@mkdir -p $(dir $@)
 	@cp -r ${auryn_engine_path}/android/native/libs/$(notdir $@) $@
 
