@@ -15,7 +15,6 @@ var program = require('commander');
 
 program
   .version(auryn.version)
-  .command('autoconfigure', 'set auryn parameters in dock config files (xml or plist)')
   .command('config', 'get / set auryn configuration variables')
   .command('make', 'create / update project Makefile')
   .command('render', 'render a template with project and settings context')

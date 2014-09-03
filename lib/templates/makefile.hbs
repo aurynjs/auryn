@@ -74,15 +74,20 @@ droid_dock_jar := $(foreach l,${droid_jar_names},${project_dockdir}/android/libs
 droid_native_path := $(call conf,auryn.engine.android.native.path)
 droid_native_dirs := $(shell ls ${droid_native_path}/)
 droid_native_names := $(foreach l,${droid_native_dirs},$(notdir $(l)))
-droid_dock_native := $(foreach l,${droid_native_names},${project_dockdir}/android/lib/$(l))
 
-droid_dock_libs = ${droid_dock_jar} ${droid_dock_native}
+droid_dock_native := $(foreach l,${droid_native_names},${project_dockdir}/android/lib/$(l))
+droid_dock_libs := ${droid_dock_jar} ${droid_dock_native}
+droid_dock_manifest := ${project_dockdir}/android/AndroidManifest.xml
+
 
 # Java parameters
 
 ant_bin := $(call conf,ant.bin)
 java_home := $(call conf,java.home)
 
+# Utils
+
+xed_bin := $(call conf,xed.bin)
 
 all:
 	@echo ${droid_dock_libs}
@@ -117,7 +122,9 @@ ${project_dockdir}/android:
 		--path ${project_dockdir}/android \
 		--activity TempActivityName \
 		--package ${project_appid}
-	@${auryn_cli} autoconfigure \
-		-p ${curdir} \
-		--android-manifest ${project_dockdir}/android/AndroidManifest.xml
-	@find ${project_dockdir}/android/src -name "*.java" -exec rm {} ';'
+	@cat ${droid_dock_manifest} \
+	| ${xed_bin} --selector="application" --attr="android:name" "AurynMainApplication" \
+	| ${xed_bin} --selector="activity" --attr="android:name" ".AurynMainActivity" \
+	> ${droid_dock_manifest}.out
+	@mv ${droid_dock_manifest}.out ${droid_dock_manifest}
+	@rm -rf ${project_dockdir}/android/src/*
