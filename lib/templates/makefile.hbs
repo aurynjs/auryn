@@ -53,6 +53,7 @@ auryn_engine_path := $(call conf,auryn.engine.path)
 project_appid := $(call conf,project.appid)
 project_dockdir := $(call conf,project.dockdir)
 project_name := $(call conf,project.name)
+project_main := $(call conf,project.main)
 
 # Android parameters
 
@@ -89,8 +90,8 @@ java_home := $(call conf,java.home)
 
 xed_bin := $(call conf,xed.bin)
 
-all:
-	@echo ${droid_dock_libs}
+clean:
+	@rm -f ${project_dockdir}/android/assets/Resources/app.js
 
 distclean:
 	@rm -rf ${project_dockdir}
@@ -101,7 +102,13 @@ android-debug: android-dock
 android-release: android-dock
 	@JAVA_HOME=${java_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml release
 
-android-dock: ${project_dockdir}/android ${droid_dock_sources} ${droid_dock_libs}
+android-dock: ${project_dockdir}/android \
+              ${droid_dock_sources} \
+              ${droid_dock_libs} \
+              ${project_dockdir}/android/assets/Resources/app.js
+
+${project_dockdir}/android/assets/Resources/app.js:
+	@cp ${project_main} ${project_dockdir}/android/assets/Resources/app.js
 
 ${project_dockdir}/android/src/%.java:
 	@mkdir -p $(dir $@)
@@ -128,3 +135,5 @@ ${project_dockdir}/android:
 	> ${droid_dock_manifest}.out
 	@mv ${droid_dock_manifest}.out ${droid_dock_manifest}
 	@rm -rf ${project_dockdir}/android/src/*
+# Temporary
+	@cp -r ${droid_templatedir}/assets ${project_dockdir}/android/assets
