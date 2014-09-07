@@ -1,7 +1,3 @@
 node_modules
-dist
-.sconsign.dblite
-.DS_Store
-xcuserdata
 npm-debug.log
-node_modules
+third_party
