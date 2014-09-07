@@ -13,6 +13,10 @@ ndk_fullversion := ${ndk_version}-${ndk_release}
 sys_name := $(shell uname -s)
 sys_machine := $(shell uname -m)
 sys_fullname := $(call lowercase,${sys_name})-${sys_machine}
+third_party_path := ${curdir}/third_party
+android_ndk_path := ${third_party_path}/android-ndk
+android_toolchain := ${android_ndk_path}/toolchains/arm-linux-androideabi-4.8
+android_toolchain_bin := ${android_toolchain}/prebuilt/linux-x86_64/bin
 
 
 all: third_party build
@@ -22,11 +26,10 @@ build: v8-build
 v8-build: v8-dependencies
 	 @cd third_party/v8 && \
 	  make ANDROID_NDK_ROOT=${curdir}/third_party/android-ndk \
-	  		 PATH=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin:$$PATH \
-	       CC=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc \
-	       CXX=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++ \
-	       AR=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar \
-	       RANLIB=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ranlib \
+	       CC=${android_toolchain_bin}/arm-linux-androideabi-gcc \
+	       CXX={android_toolchain_bin}/arm-linux-androideabi-g++ \
+	       AR=${android_toolchain_bin}/arm-linux-androideabi-ar \
+	       RANLIB=${android_toolchain_bin}/arm-linux-androideabi-ranlib \
 	       android_arm.release i18nsupport=off werror=no -j8
 
 v8-dependencies:
