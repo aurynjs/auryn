@@ -6,7 +6,7 @@ lowercase = $(shell echo $1 | tr A-Z a-z)
 
 # Environment
 
-v8_version := 3.28
+v8_version := 8226d4fce7c3a75d5fe3032d84239ea17a9f1dfa
 ndk_release := r10
 ndk_version := 32
 ndk_fullversion := ${ndk_version}-${ndk_release}
@@ -48,6 +48,5 @@ third_party/depot_tools:
 	@svn checkout http://src.chromium.org/svn/trunk/tools/depot_tools third_party/depot_tools
 
 third_party/v8:
-	@git clone -b ${v8_version} \
-	           --single-branch git://github.com/v8/v8.git \
-	           third_party/v8
+	@git clone git://github.com/v8/v8.git third_party/v8
+	@cd third_party/v8 && git checkout ${v8_version}
