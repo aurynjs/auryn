@@ -104,11 +104,12 @@ android-release: android-dock
 
 android-dock: ${project_dockdir}/android \
               ${droid_dock_sources} \
-              ${droid_dock_libs} \
-              ${project_dockdir}/android/assets/Resources/app.js
+#              ${droid_dock_libs} \
+              ${project_dockdir}/android/assets/index.js
 
-${project_dockdir}/android/assets/Resources/app.js:
-	@cp ${project_main} ${project_dockdir}/android/assets/Resources/app.js
+${project_dockdir}/android/assets/index.js:
+	@mkdir -p ${project_dockdir}/android/assets
+	@cp ${project_main} ${project_dockdir}/android/assets/index.js
 
 ${project_dockdir}/android/src/%.java:
 	@mkdir -p $(dir $@)
@@ -127,13 +128,6 @@ ${project_dockdir}/android:
 		--target ${droid_target} \
 		--name ${project_name} \
 		--path ${project_dockdir}/android \
-		--activity TempActivityName \
+		--activity AurynMainActivity \
 		--package ${project_appid}
-	@cat ${droid_dock_manifest} \
-	| ${xed_bin} --selector="application" --attr="android:name" "AurynMainApplication" \
-	| ${xed_bin} --selector="activity" --attr="android:name" ".AurynMainActivity" \
-	> ${droid_dock_manifest}.out
-	@mv ${droid_dock_manifest}.out ${droid_dock_manifest}
 	@rm -rf ${project_dockdir}/android/src/*
-# Temporary
-	@cp -r ${droid_templatedir}/assets ${project_dockdir}/android/assets
