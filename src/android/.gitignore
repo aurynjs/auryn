@@ -1,6 +1,0 @@
-bin
-gen
-*.pydevproject
-*.jpage
-.DS_Store
-.ant_targets
