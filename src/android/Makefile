@@ -6,7 +6,7 @@ lowercase = $(shell echo $1 | tr A-Z a-z)
 
 # Environment
 
-v8_version := master
+v8_version := 3.28
 ndk_release := r10
 ndk_version := 32
 ndk_fullversion := ${ndk_version}-${ndk_release}
@@ -19,13 +19,20 @@ all: third_party build
 
 build: v8-build
 
-v8-build: third_party/v8/third_party
-	@cd third_party/v8 && \
-	 make ANDROID_NDK_ROOT=${curdir}/third_party/android-ndk android_arm.release i18nsupport=off werror=no -j8
+v8-build: v8-dependencies
+	 @cd third_party/v8 && \
+	  make ANDROID_NDK_ROOT=${curdir}/third_party/android-ndk \
+	  		 PATH=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin:$$PATH \
+	       CC=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gcc \
+	       CXX=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-g++ \
+	       AR=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar \
+	       RANLIB=${curdir}/third_party/android-ndk/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ranlib \
+	       android_arm.release i18nsupport=off werror=no -j8
 
-third_party/v8/third_party:
+v8-dependencies:
 	@cd third_party/v8 && \
-	 make PATH=$$PATH:${curdir}/third_party/depot_tools dependencies
+	 make PATH=$$PATH:${curdir}/third_party/depot_tools \
+	      dependencies
 
 third_party: third_party/v8 third_party/depot_tools third_party/android-ndk
 
