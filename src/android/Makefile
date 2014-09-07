@@ -21,7 +21,13 @@ android_toolchain_bin := ${android_toolchain}/prebuilt/linux-x86_64/bin
 
 all: third_party build
 
-build: v8-build
+build: v8-build jni-build jar-build
+
+jar-build:
+	@ant release
+
+jni-build: 
+	${android_ndk_path}/ndk-build
 
 v8-build: v8-dependencies
 	 @cd third_party/v8 && \
