@@ -25,7 +25,8 @@
     "handlebars": "^2.0.0-beta.1",
     "lodash": "^2.4.1",
     "osenv": "^0.1.0",
-    "xed": "git://github.com/dawicorti/xed"
+    "xed": "git://github.com/dawicorti/xed",
+    "auryn-engine": "aurynjs/engine"
   },
   "devDependencies": {
     "mocha": "^1.21.4"
