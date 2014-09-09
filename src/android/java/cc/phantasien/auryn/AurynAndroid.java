@@ -1,4 +1,4 @@
-package org.aurynjs.android;
+package cc.phantasien.auryn;
 
 import android.content.Context;
 

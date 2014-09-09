@@ -4,7 +4,7 @@
 
 using namespace v8;
 
-extern "C" JNIEXPORT void JNICALL Java_org_aurynjs_android_AurynAndroid_run(JNIEnv* env, jobject thiz) {
+extern "C" JNIEXPORT void JNICALL Java_cc_phantasien_auryn_AurynAndroid_run(JNIEnv* env, jobject thiz) {
   // Create a new Isolate and make it the current one.
   Isolate* isolate = Isolate::New();
   Isolate::Scope isolate_scope(isolate);
