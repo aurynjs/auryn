@@ -1,0 +1,124 @@
+curdir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+# Functions
+
+lowercase = $(shell echo $1 | tr A-Z a-z)
+
+# Environment
+
+ndk_release := r10
+ndk_version := 32
+ndk_fullversion := ${ndk_version}-${ndk_release}
+
+sys_name := $(shell uname -s)
+sys_name := $(call lowercase,${sys_name})
+sys_machine := $(shell uname -m)
+sys_fullname := ${sys_name}-${sys_machine}
+
+third_party_path := ${curdir}/third_party
+
+ndk_path := ${third_party_path}/android-ndk
+ndk_bin := ${ndk_path}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin
+ndk_base_url := http://dl.google.com/android/ndk
+
+ojdk_base_url := https://bitbucket.org/alexkasko/openjdk-unofficial-builds/downloads
+ojdk_version := 1.7.0-u60-unofficial
+ojdk_sys_name := ${sys_fullname}
+ojdk_sys_name := $(subst linux-x86_64,linux-amd64,${ojdk_sys_name})
+ojdk_sys_name := $(subst linux-i686,linux-i586,${ojdk_sys_name})
+
+ant_base_url := http://mirror.bbln.org/apache/ant/binaries
+ant_version := 1.9.4
+
+droid_sdk_base_url := http://dl.google.com/android
+droid_sdk_version := r23.0.2
+droid_sdk_sys_name := ${sys_name}
+droid_sdk_sys_name := $(subst darwin,macosx,${droid_sdk_sys_name})
+
+droid-platform := android-15
+
+all: third_party install build
+
+install: droid-platform-install
+
+droid-platform-install:
+	@JAVA_HOME=${third_party_path}/openjdk ${third_party_path}/android-sdk/tools/android update sdk -u -t ${droid-platform}
+
+build: jni-build jar-build
+
+jar-build:
+	@cd src/android && \
+	    JAVA_HOME=${third_party_path}/openjdk \
+	    ANDROID_HOME=${third_party_path}/android-sdk \
+	    ${third_party_path}/ant/bin/ant release
+
+jni-build: 
+	@cd src/android && \
+	    JAVA_HOME=${third_party_path}/openjdk \
+	    ANDROID_HOME=${third_party_path}/android-sdk \
+	    ${ndk_path}/ndk-build
+
+v8-build: v8-dependencies
+	 @cd ${third_party_path}/v8 && \
+	  make ANDROID_NDK_ROOT=${third_party_path}/android-ndk \
+	       CC=${ndk_bin}/arm-linux-androideabi-gcc \
+	       CXX={ndk_bin}/arm-linux-androideabi-g++ \
+	       AR=${ndk_bin}/arm-linux-androideabi-ar \
+	       RANLIB=${ndk_bin}/arm-linux-androideabi-ranlib \
+	       android_arm.release i18nsupport=off werror=no -j8
+
+v8-dependencies:
+	@cd ${third_party_path}/v8 && \
+	 make PATH=$$PATH:${third_party_path}/depot_tools \
+	      dependencies
+
+third_party: ${third_party_path}
+
+${third_party_path}: ${third_party_path}/v8 \
+                     ${third_party_path}/openjdk \
+                     ${third_party_path}/android-ndk \
+                     ${third_party_path}/android-sdk
+
+${third_party_path}/android-ndk: ${third_party_path}/android-ndk.tar.bz2
+	@tar -C ${third_party_path} -jxf ${third_party_path}/android-ndk.tar.bz2
+	@mv ${third_party_path}/android-ndk-${ndk_release} ${third_party_path}/android-ndk
+
+${third_party_path}/android-ndk.tar.bz2:
+	@mkdir -p ${third_party_path}
+	@curl -L ${ndk_base_url}/android-ndk${ndk_fullversion}-${sys_fullname}.tar.bz2 \
+	      > ${third_party_path}/android-ndk.tar.bz2
+
+${third_party_path}/depot_tools:
+	@mkdir -p ${third_party_path}
+	@svn checkout http://src.chromium.org/svn/trunk/tools/depot_tools ${third_party_path}/depot_tools
+
+${third_party_path}/v8:
+	@mkdir -p ${third_party_path}
+	@git clone --depth 1 git://github.com/phantasien/v8.git ${third_party_path}/v8
+
+${third_party_path}/openjdk: ${third_party_path}/openjdk.zip
+	@unzip -d ${third_party_path} ${third_party_path}/openjdk.zip
+	@mv ${third_party_path}/openjdk-${ojdk_version}-${ojdk_sys_name}-image ${third_party_path}/openjdk
+
+${third_party_path}/openjdk.zip:
+	@mkdir -p ${third_party_path}
+	@-curl -L ${ojdk_base_url}/openjdk-${ojdk_version}-${ojdk_sys_name}-image.zip \
+	      > ${third_party_path}/openjdk.zip
+
+${third_party_path}/ant: ${third_party_path}/ant.tar.bz2
+	@tar -C ${third_party_path} -jxf ${third_party_path}/ant.tar.bz2
+	@mv ${third_party_path}/apache-ant-${ant_version} ${third_party_path}/ant
+
+${third_party_path}/ant.tar.bz2:
+	@mkdir -p ${third_party_path}
+	@curl -L ${ant_base_url}/apache-ant-${ant_version}-bin.tar.bz2 \
+	     > ${third_party_path}/ant.tar.bz2
+
+${third_party_path}/android-sdk:
+	@tar -C ${third_party_path} -zxf ${third_party_path}/android-sdk.tgz
+	@mv ${third_party_path}/android-sdk-${droid_sdk_sys_name} ${third_party_path}/android-sdk
+
+${third_party_path}/android-sdk.tgz:
+	@mkdir -p ${third_party_path}
+	@curl -L ${droid_sdk_base_url}/android-sdk_${droid_sdk_version}-${droid_sdk_sys_name}.tgz \
+	      > ${third_party_path}/android-sdk.tgz
