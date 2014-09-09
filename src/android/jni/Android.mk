@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 # V8
 include $(CLEAR_VARS)
-LOCAL_MODULE    := v8
+LOCAL_MODULE    := v8-base
 LOCAL_SRC_FILES := $(V8_HOME)/out/android_arm.release/obj.target/tools/gyp/libv8_base.a
 include $(PREBUILT_STATIC_LIBRARY)
 

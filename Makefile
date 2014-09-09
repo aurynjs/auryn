@@ -71,13 +71,14 @@ v8-build: v8-dependencies
 	       RANLIB=${ndk_bin}/arm-linux-androideabi-ranlib \
 	       android_arm.release i18nsupport=off werror=no -j8
 
-v8-dependencies:
+v8-dependencies: ${third_party_path}/depot_tools
 	@cd ${third_party_path}/v8 && \
 	 make PATH=$$PATH:${third_party_path}/depot_tools \
 	      dependencies
 
 deps: ${third_party_path}/v8 \
       ${third_party_path}/openjdk \
+      ${third_party_path}/ant \
       ${third_party_path}/android-ndk \
       ${third_party_path}/android-sdk
 
