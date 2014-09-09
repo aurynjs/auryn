@@ -31,6 +31,9 @@ ojdk_sys_name := $(subst darwin,macosx,${ojdk_sys_name})
 ant_base_url := http://mirror.bbln.org/apache/ant/binaries
 ant_version := 1.9.4
 
+v8_base_url := https://github.com/phantasien/v8/releases/download
+v8_version := 3.27.7
+
 droid_sdk_base_url := http://dl.google.com/android
 droid_sdk_version := r23.0.2
 droid_sdk_sys_name := ${sys_name}
@@ -86,17 +89,20 @@ ${third_party_path}/android-ndk: ${third_party_path}/android-ndk.tar.bz2
 	@tar -C ${third_party_path} -jxf ${third_party_path}/android-ndk.tar.bz2
 	@mv ${third_party_path}/android-ndk-${ndk_release} ${third_party_path}/android-ndk
 
-${third_party_path}/android-ndk.tar.bz2:
-	@mkdir -p ${third_party_path}
+${third_party_path}/android-ndk.tar.bz2: ${third_party_path}
 	@curl -L ${ndk_base_url}/android-ndk${ndk_fullversion}-${sys_fullname}.tar.bz2 \
 	      > ${third_party_path}/android-ndk.tar.bz2
 
-${third_party_path}/depot_tools:
-	@mkdir -p ${third_party_path}
+${third_party_path}/depot_tools: ${third_party_path}
 	@svn checkout http://src.chromium.org/svn/trunk/tools/depot_tools ${third_party_path}/depot_tools
 
-${third_party_path}/v8: ${third_party_path}
-	@git clone --depth 1 git://github.com/phantasien/v8.git ${third_party_path}/v8
+${third_party_path}/v8: ${third_party_path}/v8.tar.bz2
+	@tar -C ${third_party_path} -jxf ${third_party_path}/v8.tar.bz2
+	@mv ${third_party_path}/v8-${v8_version}-${sys_fullname} ${third_party_path}/v8
+
+${third_party_path}/v8.tar.bz2:
+	@curl -L ${v8_base_url}/${v8_version}/v8-${v8_version}-${sys_fullname}.tar.bz2 \
+	      > ${third_party_path}/v8.tar.bz2
 
 ${third_party_path}/openjdk: ${third_party_path}/openjdk.zip
 	@unzip -d ${third_party_path} ${third_party_path}/openjdk.zip
