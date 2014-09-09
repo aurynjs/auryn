@@ -26,6 +26,7 @@ ojdk_version := 1.7.0-u60-unofficial
 ojdk_sys_name := ${sys_fullname}
 ojdk_sys_name := $(subst linux-x86_64,linux-amd64,${ojdk_sys_name})
 ojdk_sys_name := $(subst linux-i686,linux-i586,${ojdk_sys_name})
+ojdk_sys_name := $(subst darwin,macosx,${ojdk_sys_name})
 
 ant_base_url := http://mirror.bbln.org/apache/ant/binaries
 ant_version := 1.9.4
@@ -34,10 +35,12 @@ droid_sdk_base_url := http://dl.google.com/android
 droid_sdk_version := r23.0.2
 droid_sdk_sys_name := ${sys_name}
 droid_sdk_sys_name := $(subst darwin,macosx,${droid_sdk_sys_name})
+droid_sdk_archive_name := android-sdk_${droid_sdk_version}-${droid_sdk_sys_name}.tgz
+droid_sdk_archive_name := $(subst macosx.tgz,macosx.zip,${droid_sdk_archive_name})
 
 droid-platform := android-15
 
-all: third_party install build
+all: deps install build
 
 install: droid-platform-install
 
@@ -54,6 +57,7 @@ jar-build:
 
 jni-build: 
 	@cd src/android && \
+		V8_HOME=${third_party_path}/v8 \
 	    JAVA_HOME=${third_party_path}/openjdk \
 	    ANDROID_HOME=${third_party_path}/android-sdk \
 	    ${ndk_path}/ndk-build
@@ -72,12 +76,10 @@ v8-dependencies:
 	 make PATH=$$PATH:${third_party_path}/depot_tools \
 	      dependencies
 
-third_party: ${third_party_path}
-
-${third_party_path}: ${third_party_path}/v8 \
-                     ${third_party_path}/openjdk \
-                     ${third_party_path}/android-ndk \
-                     ${third_party_path}/android-sdk
+deps: ${third_party_path}/v8 \
+      ${third_party_path}/openjdk \
+      ${third_party_path}/android-ndk \
+      ${third_party_path}/android-sdk
 
 ${third_party_path}/android-ndk: ${third_party_path}/android-ndk.tar.bz2
 	@tar -C ${third_party_path} -jxf ${third_party_path}/android-ndk.tar.bz2
@@ -92,16 +94,14 @@ ${third_party_path}/depot_tools:
 	@mkdir -p ${third_party_path}
 	@svn checkout http://src.chromium.org/svn/trunk/tools/depot_tools ${third_party_path}/depot_tools
 
-${third_party_path}/v8:
-	@mkdir -p ${third_party_path}
+${third_party_path}/v8: ${third_party_path}
 	@git clone --depth 1 git://github.com/phantasien/v8.git ${third_party_path}/v8
 
 ${third_party_path}/openjdk: ${third_party_path}/openjdk.zip
 	@unzip -d ${third_party_path} ${third_party_path}/openjdk.zip
 	@mv ${third_party_path}/openjdk-${ojdk_version}-${ojdk_sys_name}-image ${third_party_path}/openjdk
 
-${third_party_path}/openjdk.zip:
-	@mkdir -p ${third_party_path}
+${third_party_path}/openjdk.zip: ${third_party_path}
 	@-curl -L ${ojdk_base_url}/openjdk-${ojdk_version}-${ojdk_sys_name}-image.zip \
 	      > ${third_party_path}/openjdk.zip
 
@@ -109,16 +109,18 @@ ${third_party_path}/ant: ${third_party_path}/ant.tar.bz2
 	@tar -C ${third_party_path} -jxf ${third_party_path}/ant.tar.bz2
 	@mv ${third_party_path}/apache-ant-${ant_version} ${third_party_path}/ant
 
-${third_party_path}/ant.tar.bz2:
-	@mkdir -p ${third_party_path}
+${third_party_path}/ant.tar.bz2: ${third_party_path}
 	@curl -L ${ant_base_url}/apache-ant-${ant_version}-bin.tar.bz2 \
 	     > ${third_party_path}/ant.tar.bz2
 
-${third_party_path}/android-sdk:
+${third_party_path}/android-sdk: ${third_party_path}/android-sdk.tgz
 	@tar -C ${third_party_path} -zxf ${third_party_path}/android-sdk.tgz
 	@mv ${third_party_path}/android-sdk-${droid_sdk_sys_name} ${third_party_path}/android-sdk
 
-${third_party_path}/android-sdk.tgz:
-	@mkdir -p ${third_party_path}
-	@curl -L ${droid_sdk_base_url}/android-sdk_${droid_sdk_version}-${droid_sdk_sys_name}.tgz \
+${third_party_path}/android-sdk.tgz: ${third_party_path}
+	curl -L ${droid_sdk_base_url}/${droid_sdk_archive_name} \
 	      > ${third_party_path}/android-sdk.tgz
+
+${third_party_path}:
+	@mkdir -p ${third_party_path}
+
