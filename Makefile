@@ -48,7 +48,9 @@ all: deps install build
 install: droid-platform-install
 
 droid-platform-install:
-	@JAVA_HOME=${third_party_path}/openjdk ${third_party_path}/android-sdk/tools/android update sdk -u -t ${droid-platform}
+	@JAVA_HOME=${third_party_path}/openjdk \
+	 ${third_party_path}/android-sdk/tools/android \
+	   update sdk -u -t ${droid-platform},tools,platform-tools,build-tools-20.0.0
 
 build: jni-build jar-build
 
@@ -125,7 +127,7 @@ ${third_party_path}/android-sdk: ${third_party_path}/android-sdk.tgz
 	@mv ${third_party_path}/android-sdk-${droid_sdk_sys_name} ${third_party_path}/android-sdk
 
 ${third_party_path}/android-sdk.tgz: ${third_party_path}
-	curl -L ${droid_sdk_base_url}/${droid_sdk_archive_name} \
+	@curl -L ${droid_sdk_base_url}/${droid_sdk_archive_name} \
 	      > ${third_party_path}/android-sdk.tgz
 
 ${third_party_path}:
