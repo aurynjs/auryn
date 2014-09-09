@@ -52,13 +52,14 @@ droid-platform-install:
 	 ${third_party_path}/android-sdk/tools/android \
 	   update sdk -u -t ${droid-platform},tools,platform-tools,build-tools-20.0.0
 
-build: jni-build jar-build
+build: jni-build src/android/libs/auryn.jar
 
-jar-build:
+src/android/libs/auryn.jar:
 	@cd src/android && \
 	    JAVA_HOME=${third_party_path}/openjdk \
 	    ANDROID_HOME=${third_party_path}/android-sdk \
 	    ${third_party_path}/ant/bin/ant release
+	@mv src/android/bin/classes.jar src/android/libs/auryn.jar
 
 jni-build: 
 	@cd src/android && \

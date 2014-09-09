@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <v8.h>
 #include <stdio.h>
+#include <android/log.h>
 
 using namespace v8;
 
@@ -29,5 +30,8 @@ extern "C" JNIEXPORT void JNICALL Java_cc_phantasien_auryn_AurynAndroid_run(JNIE
 
   // Convert the result to an UTF8 string and print it.
   String::Utf8Value utf8(result);
-  printf("%s\n", *utf8);
+
+
+  __android_log_write(ANDROID_LOG_INFO, "Auryn native", *utf8);
+  //printf("%s\n", *utf8);
 }

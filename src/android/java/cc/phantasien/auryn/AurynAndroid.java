@@ -6,12 +6,14 @@ import android.util.Log;
 
 public class AurynAndroid {
 
-    public AurynAndroid(Context ctx) {
-    }
+    private static AurynAndroid instance = null;
 
-    public void start()
-    {
-        run();
+    private AurynAndroid() {}
+
+    public static void Start() {
+        instance = new AurynAndroid();
+        Log.d("AurynAndroid", "Run auryn native");
+        instance.run();
     }
     
     public native void run();

@@ -67,18 +67,7 @@ droid_dock_sourcesdir := ${project_dockdir}/android/src/$(subst .,/,${project_ap
 droid_dock_sources := $(foreach n,${droid_sources_names},${droid_dock_sourcesdir}/$(n))
 
 
-droid_jar_path := $(call conf,auryn.engine.android.jar.path)
-droid_jar_files := $(shell ls ${droid_jar_path}/*.jar)
-droid_jar_names := $(foreach l,${droid_jar_files},$(notdir $(l)))
-droid_dock_jar := $(foreach l,${droid_jar_names},${project_dockdir}/android/libs/$(l))
-
-droid_native_path := $(call conf,auryn.engine.android.native.path)
-droid_native_dirs := $(shell ls ${droid_native_path}/)
-droid_native_names := $(foreach l,${droid_native_dirs},$(notdir $(l)))
-
-droid_dock_native := $(foreach l,${droid_native_names},${project_dockdir}/android/libs/$(l))
-droid_dock_libs := ${droid_dock_jar} ${droid_dock_native}
-droid_dock_manifest := ${project_dockdir}/android/AndroidManifest.xml
+droid_libsdir := $(call conf,android.libsdir)
 
 
 # Java parameters
@@ -89,6 +78,9 @@ java_home := $(call conf,java.home)
 # Utils
 
 xed_bin := $(call conf,xed.bin)
+
+all:
+	@echo ${droid_libsdir}
 
 clean:
 	@rm -f ${project_dockdir}/android/assets/Resources/app.js
@@ -103,25 +95,16 @@ android-release: android-dock
 	@JAVA_HOME=${java_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml release
 
 android-dock: ${project_dockdir}/android \
-              ${droid_dock_sources} \
-#              ${droid_dock_libs} \
-              ${project_dockdir}/android/assets/index.js
+	            ${project_dockdir}/android/libs \
+              ${droid_dock_sources}
 
-${project_dockdir}/android/assets/index.js:
-	@mkdir -p ${project_dockdir}/android/assets
-	@cp ${project_main} ${project_dockdir}/android/assets/index.js
+${project_dockdir}/android/libs:
+	@mkdir -p ${project_dockdir}/android/libs
+	@rsync -ru ${droid_libsdir}/* ${project_dockdir}/android/libs/ 
 
 ${project_dockdir}/android/src/%.java:
 	@mkdir -p $(dir $@)
 	@${auryn_cli} render android/$(notdir $@).hbs $@ -p ${curdir}
-
-${project_dockdir}/android/libs/%.jar:
-	@mkdir -p $(dir $@)
-	@cp ${auryn_engine_path}/android/$(notdir $@) $@
-
-${project_dockdir}/android/libs/%:
-	@mkdir -p $(dir $@)
-	@cp -r ${auryn_engine_path}/android/native/libs/$(notdir $@) $@
 
 ${project_dockdir}/android:
 	@${droid_bin_android} -s create project \
@@ -131,3 +114,4 @@ ${project_dockdir}/android:
 		--activity AurynMainActivity \
 		--package ${project_appid}
 	@rm -rf ${project_dockdir}/android/src/*
+	@rm -rf ${project_dockdir}/android/libs
