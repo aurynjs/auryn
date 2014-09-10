@@ -31,9 +31,6 @@ ojdk_sys_name := $(subst darwin,macosx,${ojdk_sys_name})
 ant_base_url := http://mirror.bbln.org/apache/ant/binaries
 ant_version := 1.9.4
 
-ofx_base_url := http://www.openframeworks.cc/versions
-ofx_version := v0.8.4
-
 v8_base_url := https://github.com/phantasien/v8/releases/download
 v8_version := 3.27.7
 
@@ -47,6 +44,9 @@ droid_sdk_archive_name := $(subst macosx.tgz,macosx.zip,${droid_sdk_archive_name
 droid_platform := android-15
 
 all: deps install build
+
+clean:
+	rm -rf src/android/objs src/android/libs
 
 install: droid-platform-install
 
@@ -89,8 +89,7 @@ deps: ${third_party_path}/v8 \
       ${third_party_path}/openjdk \
       ${third_party_path}/ant \
       ${third_party_path}/android-ndk \
-      ${third_party_path}/android-sdk \
-      ${third_party_path}/ofx
+      ${third_party_path}/android-sdk
 
 ${third_party_path}/android-ndk: ${third_party_path}/android-ndk.tar.bz2
 	@tar -C ${third_party_path} -jxf ${third_party_path}/android-ndk.tar.bz2
@@ -134,15 +133,6 @@ ${third_party_path}/android-sdk: ${third_party_path}/android-sdk.tgz
 ${third_party_path}/android-sdk.tgz: ${third_party_path}
 	@curl -L ${droid_sdk_base_url}/${droid_sdk_archive_name} \
 	      > ${third_party_path}/android-sdk.tgz
-
-${third_party_path}/ofx: ${third_party_path}/ofx.tar.gz
-	@tar -C ${third_party_path} -zxf ${third_party_path}/ofx.tar.gz
-	@mv ${third_party_path}/of_${ofx_version}_android_release ${third_party_path}/ofx
-
-${third_party_path}/ofx.tar.gz: ${third_party_path}
-	@curl -L ${ofx_base_url}/${ofx_version}/of_${ofx_version}_android_release.tar.gz \
-	      > ${third_party_path}/ofx.tar.gz
-
 
 ${third_party_path}:
 	@mkdir -p ${third_party_path}
