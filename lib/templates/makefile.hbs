@@ -57,6 +57,7 @@ project_main := $(call conf,project.main)
 
 # Android parameters
 
+droid_home := $(call conf,android.home)
 droid_bin_android := $(call conf,android.bin.android)
 droid_target := $(call conf,android.target)
 
@@ -83,16 +84,16 @@ all:
 	@echo ${droid_libsdir}
 
 clean:
-	@rm -f ${project_dockdir}/android/assets/Resources/app.js
+	@JAVA_HOME=${java_home} ANDROID_HOME=${droid_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml clean -Dsdk.dir=${droid_home}
 
 distclean:
 	@rm -rf ${project_dockdir}
 
 android-debug: android-dock
-	@JAVA_HOME=${java_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml debug
+	@JAVA_HOME=${java_home} ANDROID_HOME=${droid_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml debug -Dsdk.dir=${droid_home}
 
 android-release: android-dock
-	@JAVA_HOME=${java_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml release
+	@JAVA_HOME=${java_home} ANDROID_HOME=${droid_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml release -Dsdk.dir=${droid_home}
 
 android-dock: ${project_dockdir}/android \
 	            ${project_dockdir}/android/libs \
