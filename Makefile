@@ -46,7 +46,7 @@ droid_platform := android-15
 all: deps install build
 
 clean:
-	rm -rf src/android/objs src/android/libs
+	rm -rf src/android/objs src/android/libs src/android/bin
 
 install: droid-platform-install
 

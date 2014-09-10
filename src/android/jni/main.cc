@@ -33,9 +33,10 @@ void Print(const FunctionCallbackInfo<Value>& args) {
 }
 
 
-extern "C" JNIEXPORT void JNICALL Java_cc_phantasien_auryn_AurynAndroid_run(JNIEnv* env, jobject thiz) {
-  setvbuf(stdout, NULL, _IONBF, 0);
+extern "C" JNIEXPORT void JNICALL Java_cc_phantasien_auryn_AurynAndroid_run(JNIEnv* env, jobject thiz, jstring jsource) {
 
+  const char *rawSource = env->GetStringUTFChars(jsource, 0);
+  
   // Create a new Isolate and make it the current one.
   Isolate* isolate = Isolate::New();
   Isolate::Scope isolate_scope(isolate);
@@ -54,7 +55,7 @@ extern "C" JNIEXPORT void JNICALL Java_cc_phantasien_auryn_AurynAndroid_run(JNIE
   Context::Scope context_scope(context);
 
   // Create a string containing the JavaScript source code.
-  Local<String> source = String::NewFromUtf8(isolate, "print('Hello World !')");
+  Local<String> source = String::NewFromUtf8(isolate, rawSource);
 
   // Compile the source code.
   Local<Script> script = Script::Compile(source);

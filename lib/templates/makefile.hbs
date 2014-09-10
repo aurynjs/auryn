@@ -97,7 +97,8 @@ android-release: android-dock
 
 android-dock: ${project_dockdir}/android \
 	            ${project_dockdir}/android/libs \
-              ${droid_dock_sources}
+              ${droid_dock_sources} \
+              ${project_dockdir}/android/assets
 
 ${project_dockdir}/android/libs:
 	@mkdir -p ${project_dockdir}/android/libs
@@ -106,6 +107,10 @@ ${project_dockdir}/android/libs:
 ${project_dockdir}/android/src/%.java:
 	@mkdir -p $(dir $@)
 	@${auryn_cli} render android/$(notdir $@).hbs $@ -p ${curdir}
+
+${project_dockdir}/android/assets:
+	@mkdir -p ${project_dockdir}/android/assets
+	@cp ${project_main} ${project_dockdir}/android/assets/index.js
 
 ${project_dockdir}/android:
 	@${droid_bin_android} -s create project \
