@@ -106,7 +106,7 @@ ${third_party_path}/v8: ${third_party_path}/v8.tar.bz2
 	@tar -C ${third_party_path} -jxf ${third_party_path}/v8.tar.bz2
 	@mv ${third_party_path}/v8-${v8_version}-${sys_fullname} ${third_party_path}/v8
 
-${third_party_path}/v8.tar.bz2:
+${third_party_path}/v8.tar.bz2: ${third_party_path}
 	@curl -L ${v8_base_url}/${v8_version}/v8-${v8_version}-${sys_fullname}.tar.bz2 \
 	      > ${third_party_path}/v8.tar.bz2
 
