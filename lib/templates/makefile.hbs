@@ -54,6 +54,9 @@ project_appid := $(call conf,project.appid)
 project_dockdir := $(call conf,project.dockdir)
 project_name := $(call conf,project.name)
 project_main := $(call conf,project.main)
+project_org_name := $(call conf,project.org.name)
+project_org_id := $(call conf,project.org.id)
+
 
 # Android parameters
 
@@ -79,6 +82,7 @@ java_home := $(call conf,java.home)
 # Utils
 
 xed_bin := $(call conf,xed.bin)
+xcli_bin := $(call conf,xcli.bin)
 
 all:
 	@echo ${droid_libsdir}
@@ -88,6 +92,22 @@ clean:
 
 distclean:
 	@rm -rf ${project_dockdir}
+
+dock: android-dock ios-dock
+
+ios-dock: ${project_dockdir}/ios
+
+${project_dockdir}/ios:
+	@mkdir -p ${project_dockdir}
+	@${xcli_bin} create \
+		--type=ios \
+		--product-name="${project_name}" \
+		--organisation-name="${project_org_name}" \
+		--company-identifier="${project_org_id}" \
+		"${project_dockdir}/ios"
+
+ios-sim-build: ios-dock
+	@xcodebuild -project "${project_dockdir}/ios/${project_name}.xcodeproj" -sdk iphonesimulator7.1
 
 android-debug: android-dock
 	@JAVA_HOME=${java_home} ANDROID_HOME=${droid_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml debug -Dsdk.dir=${droid_home}
@@ -116,3 +136,5 @@ ${project_dockdir}/android:
 		--package ${project_appid}
 	@rm -rf ${project_dockdir}/android/src/*
 	@rm -rf ${project_dockdir}/android/libs
+
+.PHONY: dock

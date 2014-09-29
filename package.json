@@ -21,13 +21,12 @@
     "async": "^0.9.0",
     "cheerio": "^0.17.0",
     "commander": "^2.3.0",
-    "css-selector-parser": "^1.0.3",
     "fs-extra": "^0.11.0",
     "handlebars": "^2.0.0-beta.1",
     "lodash": "^2.4.1",
     "osenv": "^0.1.0",
-    "xed": "dawicorti/xed",
-    "auryn-engine": "phantasien/auryn-engine"
+    "xcli": "0.0.3",
+    "xed": "dawicorti/xed"
   },
   "devDependencies": {
     "mocha": "^1.21.4"
