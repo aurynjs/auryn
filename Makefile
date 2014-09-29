@@ -48,6 +48,9 @@ droid_platform := android-15
 
 all: deps install build
 
+clean:
+	rm -rf src/android/objs src/android/libs src/android/bin
+
 install: droid-platform-install
 
 droid-platform-install:
@@ -89,8 +92,7 @@ deps: ${third_party_path}/v8 \
       ${third_party_path}/openjdk \
       ${third_party_path}/ant \
       ${third_party_path}/android-ndk \
-      ${third_party_path}/android-sdk \
-      ${third_party_path}/ofx
+      ${third_party_path}/android-sdk
 
 ${third_party_path}/android-ndk: ${third_party_path}/android-ndk.tar.bz2
 	@tar -C ${third_party_path} -jxf ${third_party_path}/android-ndk.tar.bz2
@@ -142,7 +144,6 @@ ${third_party_path}/ofx: ${third_party_path}/ofx.tar.gz
 ${third_party_path}/ofx.tar.gz: ${third_party_path}
 	@curl -L ${ofx_base_url}/${ofx_version}.tar.gz \
 	      > ${third_party_path}/ofx.tar.gz
-
 
 ${third_party_path}:
 	@mkdir -p ${third_party_path}

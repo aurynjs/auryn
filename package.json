@@ -1,6 +1,6 @@
 {
   "name": "auryn",
-  "version": "0.0.2-pre",
+  "version": "0.0.3-pre",
   "description": "magic item for node developer into mobile fantasia",
   "main": "index.js",
   "preferGlobal": true,
