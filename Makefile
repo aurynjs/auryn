@@ -46,6 +46,8 @@ droid_sdk_archive_name := $(subst macosx.tgz,macosx.zip,${droid_sdk_archive_name
 
 droid_platform := android-15
 
+ios_sim_cxx = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++
+
 all: deps install build
 
 clean:
@@ -87,6 +89,11 @@ v8-dependencies: ${third_party_path}/depot_tools
 	@cd ${third_party_path}/v8 && \
 	 make PATH=$$PATH:${third_party_path}/depot_tools \
 	      dependencies
+
+ios-sim-lib: src/ios/main.o
+
+src/ios/%.o: src/ios/%.cc
+	$(ios_sim_cxx) -c $< -o $@
 
 deps: ${third_party_path}/v8 \
       ${third_party_path}/openjdk \
