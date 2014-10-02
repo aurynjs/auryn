@@ -46,12 +46,17 @@ droid_sdk_archive_name := $(subst macosx.tgz,macosx.zip,${droid_sdk_archive_name
 
 droid_platform := android-15
 
-ios_sim_cxx = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++
+ios_sources := $(shell find ${curdir}/src/ios -name "*.cc")
+ios_objects := $(foreach source,${ios_sources},$(subst .cc,.o,${source}))
+ios_sim_cxx := /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++
+
+print:
+	@echo ${ios_objects}
 
 all: deps install build
 
 clean:
-	rm -rf src/android/objs src/android/libs src/android/bin
+	@rm -rf src/android/objs src/android/libs src/android/bin
 
 install: droid-platform-install
 
@@ -90,7 +95,10 @@ v8-dependencies: ${third_party_path}/depot_tools
 	 make PATH=$$PATH:${third_party_path}/depot_tools \
 	      dependencies
 
-ios-sim-lib: src/ios/main.o
+ios-sim-lib: ${ios_objects} src/ios/auryn.a
+
+src/ios/auryn.a:
+	@ar -cq src/ios/auryn.a ${ios_objects}
 
 src/ios/%.o: src/ios/%.cc
 	$(ios_sim_cxx) -c $< -o $@
