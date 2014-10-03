@@ -50,9 +50,6 @@ ios_sources := $(shell find ${curdir}/src/ios -name "*.cc")
 ios_objects := $(foreach source,${ios_sources},$(subst .cc,.o,${source}))
 ios_sim_cxx := /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++
 
-print:
-	@echo ${ios_objects}
-
 all: deps install build
 
 clean:
