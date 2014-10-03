@@ -57,6 +57,10 @@ project_main := $(call conf,project.main)
 project_org_name := $(call conf,project.org.name)
 project_org_id := $(call conf,project.org.id)
 
+# iOS parameters
+
+ios_libpath := $(call conf,ios.libpath)
+
 
 # Android parameters
 
@@ -105,6 +109,7 @@ ${project_dockdir}/ios:
 		--organisation-name="${project_org_name}" \
 		--company-identifier="${project_org_id}" \
 		"${project_dockdir}/ios"
+	@${xcli_bin} add lib -p "${project_dockdir}/ios/${project_name}.xcodeproj" ${ios_libpath}
 
 ios-sim-build: ios-dock
 	@xcodebuild -project "${project_dockdir}/ios/${project_name}.xcodeproj" -sdk iphonesimulator7.1
