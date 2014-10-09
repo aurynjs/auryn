@@ -46,10 +46,6 @@ droid_sdk_archive_name := $(subst macosx.tgz,macosx.zip,${droid_sdk_archive_name
 
 droid_platform := android-15
 
-ios_sources := $(shell find ${curdir}/src/ios -name "*.cc")
-ios_objects := $(foreach source,${ios_sources},$(subst .cc,.o,${source}))
-ios_sim_cxx := /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin/g++
-
 all: deps install build
 
 clean:
@@ -92,13 +88,27 @@ v8-dependencies: ${third_party_path}/depot_tools
 	 make PATH=$$PATH:${third_party_path}/depot_tools \
 	      dependencies
 
-ios-sim-lib: ${ios_objects} src/ios/auryn.a
+ios-lib-i386:
+	ARCH=i386 \
+	DEVICE=Simulator \
+	CC_FLAGS="-arch i386" \
+	make -C src/ios -f ios-lib.mk
 
-src/ios/auryn.a:
-	@ar -cq src/ios/auryn.a ${ios_objects}
+ios-lib-x86_64:
+	ARCH=x86_64 \
+	DEVICE=Simulator \
+	CC_FLAGS="-arch x86_64" \
+	make -C src/ios -f ios-lib.mk
 
-src/ios/%.o: src/ios/%.cc
-	$(ios_sim_cxx) -c $< -o $@
+ios-lib-armv7:
+	ARCH=armv7 \
+	DEVICE=OS \
+	CC_FLAGS="-arch armv7" \
+	CFLAGS_FLAGS="-mcpu=cortex-a8 -marm" \
+	make -C src/ios -f ios-lib.mk
+
+ios-lib:
+	make -C src/ios -f ios-lib.mk
 
 deps: ${third_party_path}/v8 \
       ${third_party_path}/openjdk \

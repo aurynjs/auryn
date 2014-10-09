@@ -59,10 +59,10 @@ project_org_id := $(call conf,project.org.id)
 
 # iOS parameters
 
-ios_libpath := $(call conf,ios.libpath)
+ios_libdir := $(call conf,ios.libdir)
 ios_templatedir := $(call conf,ios.templatedir)
-ios_templates := $(shell ls ${ios_templatedir}/*.m.hbs)
-ios_sources_names := $(foreach t,${ios_templates},$(notdir $(subst m.hbs,m,$(t))))
+ios_templates := $(shell ls ${ios_templatedir}/*.hbs)
+ios_sources_names := $(foreach t,${ios_templates},$(notdir $(subst .hbs,,$(t))))
 ios_dock_sourcesdir := ${project_dockdir}/ios/${project_name}
 ios_dock_sources := $(foreach n,${ios_sources_names},${ios_dock_sourcesdir}/$(n))
 
@@ -115,15 +115,18 @@ ${project_dockdir}/ios:
 		--organisation-name="${project_org_name}" \
 		--company-identifier="${project_org_id}" \
 		"${project_dockdir}/ios"
-	@cp ${ios_libpath} "${project_dockdir}/ios/"
+	@cp ${ios_libdir}/i386-auryn.a "${project_dockdir}/ios/auryn.a"
 	@${xcli_bin} add lib -p "${project_dockdir}/ios/${project_name}.xcodeproj" auryn.a
 	@rm -rf ${ios_dock_sources}
 
 ${project_dockdir}/ios/${project_name}/%.m:
 	@${auryn_cli} render ios/$(notdir $@).hbs $@ -p ${curdir}
 
-ios-sim-build: ios-dock
-	@xcodebuild -project "${project_dockdir}/ios/${project_name}.xcodeproj" -sdk iphonesimulator7.1
+${project_dockdir}/ios/${project_name}/%.h:
+	@${auryn_cli} render ios/$(notdir $@).hbs $@ -p ${curdir}
+
+ios-sim-app: ios-dock
+	@xcodebuild -project "${project_dockdir}/ios/${project_name}.xcodeproj" -sdk iphonesimulator7.1 -arch i386
 
 android-debug: android-dock
 	@JAVA_HOME=${java_home} ANDROID_HOME=${droid_home} ${ant_bin} -q -f ${project_dockdir}/android/build.xml debug -Dsdk.dir=${droid_home}
